@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
@@ -11,6 +12,7 @@ class HomeView extends StatefulWidget {
   @override
   State<HomeView> createState() => _HomeViewState();
 }
+final user = FirebaseAuth.instance.currentUser!;
 
 class _HomeViewState extends State<HomeView> {
   @override
@@ -63,13 +65,13 @@ class _HomeViewState extends State<HomeView> {
                 // authController.userSignOut();
               }
               else if (itemIdentifier == 'logout') {
-                // authController.userSignOut();
+                FirebaseAuth.instance.signOut();
               }
             },
           ),
         ],
       ),
-      body: Center(child: Text("Home page")),
+      body: Center(child: Text(user.email!)),
     );
   }
 }
