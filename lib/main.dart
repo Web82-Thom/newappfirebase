@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:newappfirebase/modules/auth/views/auth_view.dart';
+import 'package:newappfirebase/modules/auth/views/email_verification_view.dart';
 import 'package:newappfirebase/modules/auth/widgets/signin_widget.dart';
 import 'package:newappfirebase/modules/auth/widgets/signup_widget.dart';
 import 'package:newappfirebase/modules/home/views/home_view.dart';
@@ -53,7 +54,7 @@ class MyApp extends StatelessWidget {
             return SplashScreen();
           }
           if (userSnapshot.hasData) {
-            return const HomeView();
+            return const EmailVerificationView();
           }
           return const AuthView();
         },
