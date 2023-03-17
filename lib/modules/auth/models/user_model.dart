@@ -8,9 +8,8 @@ class UserModel {
   String? username;
   DateTime? birthday;
   String? age;
-
-
   // String? url;
+  
   UserModel({
     this.id, 
     this.email, 

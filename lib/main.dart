@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('fr', 'FR'), // Français, no country code
+        Locale('fr', 'FR'),
       ],
       debugShowCheckedModeBanner: false,
       home:  StreamBuilder<User?>(

@@ -1,6 +1,7 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:newappfirebase/modules/auth/controllers/auth_controller.dart';
 import 'package:newappfirebase/modules/auth/widgets/signup_widget.dart';
 import 'package:newappfirebase/ressources/widgets/utils.dart';
 
@@ -13,12 +14,9 @@ class ForgotPasswordView extends StatefulWidget {
 
 class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
-  final formKey = GlobalKey<FormState>();
-  final emailController = TextEditingController();
-
   @override
   void dispose(){
-    emailController.dispose();
+    authController.emailController.dispose();
     super.dispose();
   }
 
@@ -32,14 +30,14 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
         child: Padding(
           padding: const EdgeInsets.only(left: 15.0, right: 15.0),
           child: Form(
-            key: formKey,
+            key: authController.formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text("Entrez votre Email et verifier votre boite pour changer le mot de passe"),
                 const SizedBox(height: 25.0,),
                 TextFormField(
-                  controller: emailController,
+                  controller: authController.emailController,
                   cursorColor: Colors.black87,
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(labelText: "Entrez votre Email"),
@@ -53,7 +51,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                 const SizedBox(height: 25.0,),
                 ElevatedButton.icon(
                   onPressed: (){
-                    resetPassword();
+                    authController.resetPassword(context);
                   }, 
                   icon: const Icon(Icons.email_outlined), 
                   label: const Text("Envoyer"),
@@ -64,26 +62,6 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
         ),
       ),
     );
-  }
-
-  Future resetPassword() async{
-    showDialog(
-      context: context, 
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  
-    try {
-    await FirebaseAuth.instance.sendPasswordResetEmail(email: emailController.text.toString())
-      .whenComplete(() {
-        Utils.showSnackBar("Email envoyer!");
-         Navigator.of(context).popUntil((route) => route.isFirst);
-      });
-    } on FirebaseAuthException catch (e) {
-      Utils.showSnackBar(e.message);
-      Navigator.of(context).pop();
-    }
   }
 }
 

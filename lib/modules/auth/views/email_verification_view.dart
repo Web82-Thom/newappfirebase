@@ -99,7 +99,7 @@ class _EmailVerificationViewState extends State<EmailVerificationView> {
       isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
     });
     if(isEmailVerified) timer?.cancel();
-}
+  }
 }
 
 

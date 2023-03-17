@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:get/get.dart';
+import 'package:newappfirebase/modules/auth/controllers/auth_controller.dart';
 
 import '../../../routes/app_pages.dart';
 
@@ -12,7 +13,10 @@ class HomeView extends StatefulWidget {
   @override
   State<HomeView> createState() => _HomeViewState();
 }
-final user = FirebaseAuth.instance.currentUser!;
+
+  AuthController authController = AuthController();
+  final user = FirebaseAuth.instance.currentUser!;
+
 
 class _HomeViewState extends State<HomeView> {
   @override
@@ -62,11 +66,10 @@ class _HomeViewState extends State<HomeView> {
             ],
             onChanged: (itemIdentifier) {
               if (itemIdentifier == 'profil') {
-                // authController.userSignOut();
+
               }
               else if (itemIdentifier == 'logout') {
-                // FirebaseAuth.instance.signOut();
-                signOut();
+                authController.signOut();
               }
             },
           ),
@@ -81,14 +84,6 @@ class _HomeViewState extends State<HomeView> {
         )),
     );
   }
- Future signOut() async  {
-     await FirebaseAuth.instance.signOut().whenComplete(() {
-      Get.toNamed(Routes.AUTH);
-      Get.snackbar("Déconnexion réussie", "",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.grey[500],
-      );
-    });
-  }
+ 
 
 }
