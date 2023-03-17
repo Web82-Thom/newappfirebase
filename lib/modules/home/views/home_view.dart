@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:get/get.dart';
 import 'package:newappfirebase/modules/auth/controllers/auth_controller.dart';
 import 'package:newappfirebase/modules/auth/models/user_model.dart';
+import 'package:newappfirebase/modules/profile/controllers/profile_controller.dart';
 import 'package:newappfirebase/modules/profile/views/profile_view.dart';
 
 import '../../../routes/app_pages.dart';
@@ -17,8 +18,7 @@ class HomeView extends StatefulWidget {
 }
 
   AuthController authController = AuthController();
-  // final user = FirebaseAuth.instance.currentUser!;
-
+  ProfileController profileController = ProfileController();
 
 class _HomeViewState extends State<HomeView> {
   @override
@@ -79,7 +79,7 @@ class _HomeViewState extends State<HomeView> {
         ],
       ),
       body: FutureBuilder<UserModel?>(
-        future: profilController.readUser(),
+        future: profileController.readUser(),
         builder: (context, snapshot) {
           final user = snapshot.data;
           return snapshot.hasData ?

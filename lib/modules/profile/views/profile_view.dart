@@ -28,7 +28,7 @@ class ProfileView extends StatefulWidget {
 }
 
 AuthController authController = AuthController();
-ProfileController profilController = ProfileController();
+ProfileController profileController = ProfileController();
 
 Color _color1 = Colors.white;
 Color _color2 = Color(0xff777777);
@@ -38,6 +38,8 @@ FirebaseAuth auth = FirebaseAuth.instance;
 TextEditingController _usernameField = TextEditingController();
 TextEditingController _emailField = TextEditingController();
 TextEditingController _ageField = TextEditingController();
+DateTime? selectedDate;
+
 
 class _ProfileViewState extends State<ProfileView> {
   @override
@@ -48,7 +50,7 @@ class _ProfileViewState extends State<ProfileView> {
     final double profilePictureSize = MediaQuery.of(context).size.width / 3;
 
     return FutureBuilder<UserModel?>(
-      future: profilController.readUser(),
+      future: profileController.readUser(),
       builder: (context, snapshot) {
         final user = snapshot.data;
         return SafeArea(
@@ -120,10 +122,10 @@ class _ProfileViewState extends State<ProfileView> {
                                   cancel: const DialogCancelButton(),
                                   confirm: DialogConfirmButton(
                                     onPressed: () {
-                                      // profileController.updateUsername(
-                                      //     id: user.id.toString(),
-                                      //     username: _usernameField.text);
-                                      // _usernameField.clear();
+                                      profileController.updateUsername(
+                                          id: user.id.toString(),
+                                          username: _usernameField.text);
+                                      _usernameField.clear();
                                       Navigator.pop(context);
                                     },
                                   ),
@@ -171,6 +173,7 @@ class _ProfileViewState extends State<ProfileView> {
                                 Get.defaultDialog(
                                   title: "Modifier mon age",
                                   content: CustomTextField(
+                                    textInputType: TextInputType.number,
                                     controller: _ageField,
                                     labelText: "Age",
                                     isObscure: false,
@@ -178,11 +181,12 @@ class _ProfileViewState extends State<ProfileView> {
                                   cancel: const DialogCancelButton(),
                                   confirm: DialogConfirmButton(
                                     onPressed: () {
-                                      // profileController.updateEmail(
-                                      //     id: user.id.toString(),
-                                      //     email: _emailField.text);
-                                      // _emailField.clear();
-                                      // Navigator.pop(context);
+                                      profileController.updateAge(
+                                        id: user.id.toString(),
+                                        age: _ageField.text,
+                                      );
+                                      _ageField.clear();
+                                      Navigator.pop(context);
                                     },
                                   ),
                                 );
@@ -241,10 +245,15 @@ class _ProfileViewState extends State<ProfileView> {
                                 }, 
                                 currentTime: DateTime.now(), 
                                 locale: LocaleType.fr).then((date){
+
                                   setState(() {
-                                    authController.selectedDate = date;
+                                    selectedDate = date;
                                   });
-                                  print(authController.selectedDate);
+                                  profileController.updateBirthday(
+                                    id: user.id!,
+                                    birthday: DateTime.parse(selectedDate.toString()),
+                                  );
+                                  print(selectedDate);
                                 });
                               },
                               child: const Text(
@@ -298,11 +307,11 @@ class _ProfileViewState extends State<ProfileView> {
                                   cancel: const DialogCancelButton(),
                                   confirm: DialogConfirmButton(
                                     onPressed: () {
-                                      // profileController.updateEmail(
-                                      //     id: user.id.toString(),
-                                      //     email: _emailField.text);
-                                      // _emailField.clear();
-                                      // Navigator.pop(context);
+                                      profileController.updateEmail(
+                                          id: user.id.toString(),
+                                          email: _emailField.text);
+                                      _emailField.clear();
+                                      Navigator.pop(context);
                                     },
                                   ),
                                 );
@@ -334,8 +343,9 @@ class _ProfileViewState extends State<ProfileView> {
                                   cancel: const DialogCancelButton(),
                                   confirm: DialogConfirmButton(
                                     onPressed: () =>
-                                    print("delete"),
-                                        // authController.deleteUser(),
+                                    profileController.userDeleteAccount(
+                                      id : user.id.toString(),
+                                    ),
                                   ),
                                 );
                               },
@@ -355,24 +365,22 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                 ],
               ) :
-                   
-                     Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          SizedBox(
-                            height: 100,
-                            width : 100,
-                            child: CircularProgressIndicator(strokeWidth: 5,)),
-                          SizedBox(height: 100.00,),
-                          Text('Chargement des données...', style: TextStyle(color: Colors.white),),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-                  
-                }
-        );
-      }
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    SizedBox(
+                      height: 100,
+                      width : 100,
+                      child: CircularProgressIndicator(strokeWidth: 5,)),
+                    SizedBox(height: 100.00,),
+                    Text('Chargement des données...', style: TextStyle(color: Colors.white),),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+      );
+    }
   }
