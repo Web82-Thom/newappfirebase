@@ -97,7 +97,8 @@ class _SignupWidgetState extends State<SignupWidget> {
                           DatePicker.showDatePicker(context,
                             showTitleActions: true,
                             minTime: DateTime(1900, 1, 1),
-                            maxTime: DateTime(2100, 12, 31), onChanged: (date) {
+                            maxTime: DateTime(2100, 12, 31), 
+                            onChanged: (date) {
                               print('change $date');
                             }, onConfirm: (date) {
                               print('confirm $date');

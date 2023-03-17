@@ -4,6 +4,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:get/get.dart';
 import 'package:newappfirebase/modules/auth/controllers/auth_controller.dart';
+import 'package:newappfirebase/modules/auth/models/user_model.dart';
+import 'package:newappfirebase/modules/profile/views/profile_view.dart';
 
 import '../../../routes/app_pages.dart';
 
@@ -15,7 +17,7 @@ class HomeView extends StatefulWidget {
 }
 
   AuthController authController = AuthController();
-  final user = FirebaseAuth.instance.currentUser!;
+  // final user = FirebaseAuth.instance.currentUser!;
 
 
 class _HomeViewState extends State<HomeView> {
@@ -66,6 +68,7 @@ class _HomeViewState extends State<HomeView> {
             ],
             onChanged: (itemIdentifier) {
               if (itemIdentifier == 'profil') {
+                Get.toNamed(Routes.PROFILEVIEW);
 
               }
               else if (itemIdentifier == 'logout') {
@@ -75,15 +78,24 @@ class _HomeViewState extends State<HomeView> {
           ),
         ],
       ),
-      body: Center(
-        child: Text(
-          user.email!,
-          style: const TextStyle(
-            color: Colors.white
-          ),  
-        )),
+      body: FutureBuilder<UserModel?>(
+        future: profilController.readUser(),
+        builder: (context, snapshot) {
+          final user = snapshot.data;
+          return snapshot.hasData ?
+            Center(
+              child: Text(
+                user!.email.toString(),
+                style: const TextStyle(
+                  color: Colors.white
+                ),  
+              ),
+            ):
+          const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      ),
     );
   }
- 
-
 }

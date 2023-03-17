@@ -9,7 +9,7 @@ class UserModel {
   DateTime? birthday;
   String? age;
   // String? url;
-  
+
   UserModel({
     this.id, 
     this.email, 
@@ -51,6 +51,7 @@ class UserModel {
     email: json['email'],
     username: json['username'],
     birthday: Utils.toDateTime(json["birthday"]),
+    age: json['age'],
     // url: json['url'],
   );
 }
