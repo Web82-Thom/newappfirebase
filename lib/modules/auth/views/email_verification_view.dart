@@ -21,9 +21,7 @@ class _EmailVerificationViewState extends State<EmailVerificationView> {
 
   @override
   void initState() {
-    
     super.initState();
-
     //user needs to be create before!
     isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
     if(!isEmailVerified) {
@@ -48,26 +46,33 @@ class _EmailVerificationViewState extends State<EmailVerificationView> {
         appBar: AppBar(
           title: const Text("Vérification du mail"),
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("Veuillez verifier votre boite email et cliqué sur le lien pour valider votre accès à l'application"),
-            const SizedBox(height: 24.0),
-            ElevatedButton.icon(
-              onPressed: (){
-                cancelResendEmail ? sendVerificationEmail(): null;
-              }, 
-              icon: const Icon(Icons.email), 
-              label: const Text("Renvoyer un Email"),
-            ),
-            const SizedBox(height: 8,),
-            TextButton(
-              onPressed: (){
-                FirebaseAuth.instance.signOut();
-              }, 
-              child: const Text("Annuler"),
-            ),
-          ],
+        body: Padding(
+          padding: const EdgeInsets.only(left: 20.0, right: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            // crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                "Veuillez verifier votre boite email et cliqué sur le lien pour valider votre accès à l'application",
+                style: TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 24.0),
+              ElevatedButton.icon(
+                onPressed: (){
+                  cancelResendEmail ? sendVerificationEmail(): null;
+                }, 
+                icon: const Icon(Icons.email), 
+                label: const Text("Renvoyer un Email"),
+              ),
+              const SizedBox(height: 8,),
+              TextButton(
+                onPressed: (){
+                  FirebaseAuth.instance.signOut();
+                }, 
+                child: const Text("Annuler"),
+              ),
+            ],
+          ),
         ),
       );
   Future sendVerificationEmail() async {

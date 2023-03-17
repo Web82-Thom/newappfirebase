@@ -27,4 +27,10 @@ class Utils {
       ..removeCurrentSnackBar()
       ..showSnackBar(snackBar);
   }
+
+  static DateTime? toDateTime(Timestamp value) {
+    if (value == null) return null;
+
+    return value.toDate();
+  }
 }

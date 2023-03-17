@@ -32,94 +32,124 @@ class _SigninWidgetState extends State<SigninWidget> {
 
   @override
   void dispose(){
-    emailController.dispose();
-    passwordController.dispose();
+    // emailController.dispose();
+    // passwordController.dispose();
     super.dispose();
+  }
+  @override
+  void close(){
+    // emailController.clear();
+    // passwordController.clear();
+    close();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 40,),
-          TextField(
-            controller: emailController,
-            cursorColor: Colors.black87,
-            textInputAction: TextInputAction.next,
-            decoration: const InputDecoration(labelText: "Entrez votre Email"),
-          ),
-          const SizedBox(height: 4,),
-           TextField(
-            controller: passwordController,
-            cursorColor: Colors.black87,
-            textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              labelText:"Entrez votre mot de passe",
-              suffixIcon: IconButton(
-                icon: Icon(_iconVisible, size: 20, color: Colors.amber,),
-                onPressed: () {
-                  _toggleObscureText();
-                },
-              ),
-            ),
-            obscureText: _obscureText,
-          ),
-          const SizedBox(height: 20.00,),
-          ElevatedButton.icon(
-            onPressed: (){
-              signin();
-            }, 
-            icon: const Icon(Icons.lock_open, size: 32.00), 
-            label: const Text("Se connecter", style: TextStyle(fontSize: 24.00),),
-          ),
-          const SizedBox(height: 25.00,),
-          const SizedBox(height: 16,),
-          GestureDetector(
-            child: const Text(
-              "Mot de passe oublier ?",
-              style: TextStyle(
-                decoration: TextDecoration.underline,
-                color: Colors.amber,
-                fontSize: 20,
-              ),
-            ),
-            onTap: (){
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const ForgotPasswordView(),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 10.0,),
-          RichText(
-            text: TextSpan(
-              text: 'Pas encore de compte ?',
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 20.0,
-              ),
+    return SafeArea(
+      child: Scaffold(
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 10.0, left: 10.0, top: 50, bottom: 10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextSpan(
-                  recognizer: TapGestureRecognizer()
-                  ..onTap = widget.onClickedSignUp,
-                  text: " Inscription",
-                  style: const TextStyle(
-                    decoration: TextDecoration.underline,
+                const Text(
+                  "Connexion",
+                  style: TextStyle(
                     color: Colors.amber,
-                    fontSize: 20,
+                    fontSize: 30,
+                  ),
+                ),
+                const SizedBox(height: 40,),
+                TextField(
+                  style: const TextStyle(color: Colors.white),
+                  controller: emailController,
+                  cursorColor: Colors.black87,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    labelStyle: TextStyle(fontSize: 15),
+                    labelText: "Entrez votre Email",
+                  ),
+                ),
+                const SizedBox(height: 8.0,),
+                TextField(
+                  style: const TextStyle(color: Colors.white),
+                  controller: passwordController,
+                  cursorColor: Colors.black87,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelStyle: TextStyle(fontSize: 15),
+                    labelText:"Entrez votre mot de passe",
+                    suffixIcon: IconButton(
+                      icon: Icon(_iconVisible, size: 20, color: Colors.amber,),
+                      onPressed: () {
+                        _toggleObscureText();
+                      },
+                    ),
+                  ),
+                  obscureText: _obscureText,
+                ),
+                const SizedBox(height: 20.00,),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.only(right: 30, left: 30, top: 10, bottom: 10),
+                  ),
+                  onPressed: (){
+                    signin();
+                    
+                  }, 
+                  icon: const Icon(Icons.lock_open, size: 25.00), 
+                  label: const Text("Se connecter", style: TextStyle(fontSize: 20.00),),
+                ),
+                const SizedBox(height: 25.00,),
+                const SizedBox(height: 16,),
+                GestureDetector(
+                  child: const Text(
+                    "Mot de passe oublier ?",
+                    style: TextStyle(
+                      decoration: TextDecoration.underline,
+                      color: Colors.amber,
+                      fontSize: 15,
+                    ),
+                  ),
+                  onTap: (){
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const ForgotPasswordView(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 10.0,),
+                RichText(
+                  text: TextSpan(
+                    text: 'Pas encore de compte ? ',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 15.0,
+                    ),
+                    children: [
+                      TextSpan(
+                        recognizer: TapGestureRecognizer()
+                        ..onTap = widget.onClickedSignUp,
+                        text: " Inscription",
+                        style: const TextStyle(
+                          decoration: TextDecoration.underline,
+                          color: Colors.amber,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
-
+  
   Future signin() async{
     showDialog(
       context: context, 
@@ -130,7 +160,10 @@ class _SigninWidgetState extends State<SigninWidget> {
     try { 
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text, 
-        password: passwordController.text);
+        password: passwordController.text).whenComplete((){
+          emailController.clear();
+          passwordController.clear();
+        });
     } on FirebaseAuthException catch (e) {
       print(e);
       Utils.showSnackBar(e.message);

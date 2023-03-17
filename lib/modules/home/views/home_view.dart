@@ -65,13 +65,30 @@ class _HomeViewState extends State<HomeView> {
                 // authController.userSignOut();
               }
               else if (itemIdentifier == 'logout') {
-                FirebaseAuth.instance.signOut();
+                // FirebaseAuth.instance.signOut();
+                signOut();
               }
             },
           ),
         ],
       ),
-      body: Center(child: Text(user.email!)),
+      body: Center(
+        child: Text(
+          user.email!,
+          style: const TextStyle(
+            color: Colors.white
+          ),  
+        )),
     );
   }
+ Future signOut() async  {
+     await FirebaseAuth.instance.signOut().whenComplete(() {
+      Get.toNamed(Routes.AUTH);
+      Get.snackbar("Déconnexion réussie", "",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.grey[500],
+      );
+    });
+  }
+
 }
