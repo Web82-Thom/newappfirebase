@@ -54,4 +54,15 @@ class UserModel {
     age: json['age'],
     // url: json['url'],
   );
+
+  factory UserModel.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> document ) {
+    final data = document.data();
+    return UserModel(
+      id: document.id, 
+      email: data!["email"], 
+      username: data["username"],
+      birthday: Utils.toDateTime(data["birthday"]),
+      age: data["age"],
+      );
+  }
 }

@@ -39,9 +39,12 @@ class AuthController extends ChangeNotifier {
       ),
     );
     try { 
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+     UserCredential result = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text, 
         password: passwordController.text);
+        // User? user = result.user;
+        // return _userFromFirebaseUser(user);
+
     } on FirebaseAuthException catch (e) {
       print(e);
       Utils.showSnackBar(e.message);
@@ -131,6 +134,13 @@ class AuthController extends ChangeNotifier {
       Navigator.of(context).pop();
     }
   }
+
+// AppUser? _userFromFirebaseUser(User? user) {
+//     return user != null ? AppUser(user.uid) : null;
+//   }
+// Stream<AppUser?> get user {
+//     return auth.authStateChanges().map(_userFromFirebaseUser);
+//   }
 
   @override
   void initState() {

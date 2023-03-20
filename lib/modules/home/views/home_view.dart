@@ -78,23 +78,75 @@ class _HomeViewState extends State<HomeView> {
           ),
         ],
       ),
-      body: FutureBuilder<UserModel?>(
-        future: profileController.readUser(),
-        builder: (context, snapshot) {
-          final user = snapshot.data;
-          return snapshot.hasData ?
-            Center(
-              child: Text(
-                user!.email.toString(),
-                style: const TextStyle(
-                  color: Colors.white
-                ),  
-              ),
-            ):
-          const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
+      body: SingleChildScrollView(
+        child: FutureBuilder<UserModel?>(
+          future: profileController.readUser(),
+          builder: (context, snapshot) {
+            final user = snapshot.data;
+            return snapshot.hasData ?
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // SizedBox(
+                  //   width: MediaQuery.of(context).size.width,
+                  //   child: GestureDetector(
+                  //     onTap: () {
+                  //       Get.toNamed(Routes.CHATVIEW);
+                  //     },
+                  //     child: Card(
+                  //       elevation: 10,
+                  //       shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(8)),
+                  //       child: Center(
+                  //         child: Column(
+                  //           mainAxisSize: MainAxisSize.min,
+                  //           children: <Widget>[
+                  //             Image.asset("assets/images/Chat.png"),
+                  //             ListTile(
+                  //               title: Text("Mon t'chat!"),
+                  //               subtitle: Text("Un t'chat firebase..."),
+                  //               leading: Icon(Icons.chat_bubble),
+                  //             )
+                  //           ],
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: GestureDetector(
+                      onTap: () {
+                        Get.toNamed(Routes.LISTUSERSVIEW);
+                      },
+                      child: Card(
+                        elevation: 10,
+                        shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Image.asset("assets/images/Chat.png"),
+                              ListTile(
+                                title: Text("Membres"),
+                                subtitle: Text("Liste des utilisateurs "),
+                                leading: Icon(Icons.person),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ):
+            const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        ),
       ),
     );
   }
