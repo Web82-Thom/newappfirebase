@@ -1,10 +1,6 @@
-import 'dart:io';
+// ignore_for_file: avoid_print
 
-import 'package:cloud_firestore_platform_interface/src/timestamp.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:get/get.dart';
@@ -13,7 +9,6 @@ import 'package:newappfirebase/modules/auth/models/user_model.dart';
 import 'package:newappfirebase/modules/profile/controllers/profile_controller.dart';
 import 'package:newappfirebase/modules/profile/widgets/custom_text_field.dart';
 import 'package:newappfirebase/ressources/widgets/dialogues/dialog_confirm_button.dart';
-import 'package:newappfirebase/ressources/widgets/utils.dart';
 import 'package:newappfirebase/routes/app_pages.dart';
 
 import '../../../ressources/widgets/dialogues/dialog_cancel_button.dart';
@@ -30,11 +25,7 @@ class ProfileView extends StatefulWidget {
 AuthController authController = AuthController();
 ProfileController profileController = ProfileController();
 
-Color _color1 = Colors.white;
-Color _color2 = Color(0xff777777);
-Color _color3 = Color(0xFF515151);
 FirebaseAuth auth = FirebaseAuth.instance;
-// ProfileController profileController = ProfileController();
 TextEditingController _usernameField = TextEditingController();
 TextEditingController _emailField = TextEditingController();
 TextEditingController _ageField = TextEditingController();
@@ -45,10 +36,6 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
     
-    final ref = FirebaseDatabase.instance.ref('users');
-    final Size size = MediaQuery.of(context).size;
-    final double profilePictureSize = MediaQuery.of(context).size.width / 3;
-
     return FutureBuilder<UserModel?>(
       future: profileController.readUser(),
       builder: (context, snapshot) {

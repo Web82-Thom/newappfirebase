@@ -1,20 +1,19 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:newappfirebase/helper/helperfunctions.dart';
 import 'package:newappfirebase/main.dart';
 import 'package:newappfirebase/modules/auth/models/user_model.dart';
 import 'package:newappfirebase/ressources/widgets/utils.dart';
-
 import '../../../routes/app_pages.dart';
 
 class AuthController extends ChangeNotifier {
-
+  AuthController();
   final userNameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -42,11 +41,16 @@ class AuthController extends ChangeNotifier {
      UserCredential result = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text, 
         password: passwordController.text);
-        // User? user = result.user;
-        // return _userFromFirebaseUser(user);
+        User? user = result.user;
+        QuerySnapshot userInfoSnapshot =
+          await getUserInfo(emailController.text);
 
+        HelperFunctions.saveUserLoggedInSharedPreference(true);
+        HelperFunctions.saveUserNameSharedPreference(
+          userInfoSnapshot.docs[0]["username"]);
+        HelperFunctions.saveUserEmailSharedPreference(
+          userInfoSnapshot.docs[0]["email"]);
     } on FirebaseAuthException catch (e) {
-      print(e);
       Utils.showSnackBar(e.message);
     }
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
@@ -70,7 +74,7 @@ class AuthController extends ChangeNotifier {
         // url: userurl.path,
       ).toMap(),
     ).catchError((error) =>
-      print("Failed to add user : $error"),
+      Utils.showSnackBar(error),
     );
   }
 
@@ -87,7 +91,12 @@ class AuthController extends ChangeNotifier {
 
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text, password: passwordController.text)
+        email: emailController.text, password: passwordController.text).then((value) {
+          getUserInfo(emailController.text);
+          HelperFunctions.saveUserLoggedInSharedPreference(true);
+          HelperFunctions.saveUserNameSharedPreference(userNameController.text);
+          HelperFunctions.saveUserEmailSharedPreference(emailController.text);
+        })
         .whenComplete(() {
           userCreateProfile(
             username: userNameController.text, 
@@ -96,7 +105,9 @@ class AuthController extends ChangeNotifier {
             age: ageController.text,
             // userurl: authController.userImageFile!,
           );
-        });
+        },
+              
+        );
     } on FirebaseAuthException catch (e){
       Utils.showSnackBar(e.message);
     }
@@ -106,6 +117,8 @@ class AuthController extends ChangeNotifier {
   //*****SIGNOUT*****/
   Future signOut() async  {
      await FirebaseAuth.instance.signOut().whenComplete(() {
+      emailController.clear();
+      passwordController.clear();
       Get.toNamed(Routes.AUTH);
       Get.snackbar("Déconnexion réussie", "A bientôt!",
           snackPosition: SnackPosition.BOTTOM,
@@ -135,29 +148,32 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-// AppUser? _userFromFirebaseUser(User? user) {
-//     return user != null ? AppUser(user.uid) : null;
-//   }
-// Stream<AppUser?> get user {
-//     return auth.authStateChanges().map(_userFromFirebaseUser);
-//   }
+  getUserInfo(String email) async {
+    try {
+      FirebaseFirestore.instance
+        .collection("users")
+        .where("email", isEqualTo: email)
+        .get();
+    } on FirebaseException catch (e) {
+      Utils.showSnackBar(e.message);
+    }
+  }
 
-  @override
   void initState() {
     initState();
     notifyListeners();
   }
 
+  @override
   void dispose(){
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
   }
-  @override
   void close(){
     emailController.clear();
     passwordController.clear();
     close();
   }
-
+  
 }

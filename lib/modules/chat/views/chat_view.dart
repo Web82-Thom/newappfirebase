@@ -8,6 +8,9 @@ import 'package:newappfirebase/modules/chat/widgets/new_message.dart';
 
 
 class ChatView extends StatefulWidget {
+  const ChatView({super.key});
+
+  
   @override
   _ChatViewState createState() => _ChatViewState();
 }
@@ -21,7 +24,6 @@ class _ChatViewState extends State<ChatView> {
     final fbm = FirebaseMessaging.instance;
     fbm.requestPermission();
     fbm.subscribeToTopic('chat');
-    print(fbm);
   }
 
   @override
@@ -29,7 +31,7 @@ class _ChatViewState extends State<ChatView> {
     // construction d'une liste de message dans le ctx et index dans un container
     return Scaffold(
       appBar: AppBar(
-        title: Text('Thom t\'chat'),
+        title: const Text('Thom t\'chat'),
         actions: [
           DropdownButton(
             underline: Container(),
@@ -39,21 +41,19 @@ class _ChatViewState extends State<ChatView> {
             ),
             items: [
               DropdownMenuItem(
-                child: Container(
-                  child: Row(
-                    children: <Widget>[
-                      Icon(
-                        Icons.exit_to_app,
-                        color: Colors.grey,
-                      ),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Text('Déconnexion'),
-                    ],
-                  ),
-                ),
                 value: 'logout',
+                child: Row(
+                  children: const <Widget>[
+                    Icon(
+                      Icons.exit_to_app,
+                      color: Colors.grey,
+                    ),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Text('Déconnexion'),
+                  ],
+                ),
               ),
             ],
             onChanged: (itemIdentifier) {
@@ -64,15 +64,13 @@ class _ChatViewState extends State<ChatView> {
           ),
         ],
       ),
-      body: Container(
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: Messages(),
-            ),
-            NewMessage(),
-          ],
-        ),
+      body: Column(
+        children: const <Widget>[
+          Expanded(
+            child: Messages(),
+          ),
+          NewMessage(),
+        ],
       ),
     );
   }

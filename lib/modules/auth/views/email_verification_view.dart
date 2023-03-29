@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:newappfirebase/modules/home/views/home_view.dart';
 import 'package:newappfirebase/ressources/widgets/utils.dart';
 
@@ -27,7 +26,7 @@ class _EmailVerificationViewState extends State<EmailVerificationView> {
     if(!isEmailVerified) {
       sendVerificationEmail();
       timer = Timer.periodic(
-        Duration(seconds: 3),
+        const Duration(seconds: 3),
         (_) => checkEmailVerified(),
       );
     }

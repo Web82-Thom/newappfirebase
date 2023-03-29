@@ -1,11 +1,8 @@
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:newappfirebase/main.dart';
 import 'package:newappfirebase/modules/auth/controllers/auth_controller.dart';
-import 'package:newappfirebase/modules/auth/views/auth_view.dart';
 import 'package:newappfirebase/ressources/widgets/utils.dart';
 import 'package:intl/intl.dart';
 
@@ -47,7 +44,7 @@ class _SignupWidgetState extends State<SignupWidget> {
                     const SizedBox(height: 40,),
                   //*****USERNAME*****//
                     TextFormField(
-                      style: TextStyle(color: Colors.white,),
+                      style: const TextStyle(color: Colors.white,),
                       controller: authController.userNameController,
                       cursorColor: Colors.black87,
                       textInputAction: TextInputAction.next,
@@ -65,7 +62,7 @@ class _SignupWidgetState extends State<SignupWidget> {
                     const SizedBox(height: 4,),
                   //*****AGE*****//
                     TextFormField(
-                      style: TextStyle(color: Colors.white, fontWeight: null),
+                      style: const TextStyle(color: Colors.white, fontWeight: null),
                       keyboardType: TextInputType.number,
                       controller: authController.ageController,
                       cursorColor: Colors.black87,
@@ -99,14 +96,15 @@ class _SignupWidgetState extends State<SignupWidget> {
                             minTime: DateTime(1900, 1, 1),
                             maxTime: DateTime(2100, 12, 31), 
                             onChanged: (date) {
+                              // ignore: avoid_print
                               print('change $date');
                             }, onConfirm: (date) {
+                              // ignore: avoid_print
                               print('confirm $date');
                             }, currentTime: DateTime.now(), locale: LocaleType.fr).then((date){
                               setState(() {
                                 authController.selectedDate = date;
                               });
-                              print(authController.selectedDate);
                             },
                           );
                         }, child: const Text("Date de naissance")),
@@ -115,7 +113,7 @@ class _SignupWidgetState extends State<SignupWidget> {
                     const SizedBox(height: 4,),
                   //*****EMAIL*****//
                     TextFormField(
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                       controller: authController.emailController,
                       cursorColor: Colors.black87,
                       textInputAction: TextInputAction.next,
@@ -132,12 +130,12 @@ class _SignupWidgetState extends State<SignupWidget> {
                     const SizedBox(height: 4,),
                   //*****PASSWORD*****//
                     TextFormField(
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                       controller: authController.passwordController,
                       cursorColor: Colors.black87,
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
-                        labelStyle: TextStyle(fontSize: 15),
+                        labelStyle: const TextStyle(fontSize: 15),
                         labelText:"Entrez votre mot de passe",
                         suffixIcon: IconButton(
                           icon: Icon(_iconVisible, size: 20, color: Colors.amber,),
@@ -158,7 +156,9 @@ class _SignupWidgetState extends State<SignupWidget> {
                   //*****BUTTON SIGNUP*****//
                     ElevatedButton.icon(
                       onPressed: (){
-                        authController.signup(context);
+                        authController.selectedDate != null ?
+                        authController.signup(context):
+                        Utils.showSnackBar('Manque la date de naissance');
                       }, 
                       icon: const Icon(Icons.lock_open, size: 25.00), 
                       style: ElevatedButton.styleFrom(

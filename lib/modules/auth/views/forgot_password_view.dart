@@ -1,9 +1,6 @@
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:newappfirebase/modules/auth/controllers/auth_controller.dart';
 import 'package:newappfirebase/modules/auth/widgets/signup_widget.dart';
-import 'package:newappfirebase/ressources/widgets/utils.dart';
 
 class ForgotPasswordView extends StatefulWidget {
   const ForgotPasswordView({super.key});

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -29,6 +28,7 @@ class Utils {
   }
 
   static DateTime? toDateTime(Timestamp value) {
+    // ignore: unnecessary_null_comparison
     if (value == null) return null;
 
     return value.toDate();

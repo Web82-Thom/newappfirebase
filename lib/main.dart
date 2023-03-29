@@ -3,21 +3,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:newappfirebase/modules/auth/controllers/auth_controller.dart';
-import 'package:newappfirebase/modules/auth/models/user_model.dart';
 import 'package:newappfirebase/modules/auth/views/auth_view.dart';
 import 'package:newappfirebase/modules/auth/views/email_verification_view.dart';
-import 'package:newappfirebase/modules/auth/widgets/signin_widget.dart';
-import 'package:newappfirebase/modules/auth/widgets/signup_widget.dart';
-import 'package:newappfirebase/modules/home/views/home_view.dart';
 import 'package:newappfirebase/ressources/widgets/splash_screen.dart';
 import 'package:newappfirebase/ressources/widgets/utils.dart';
 import 'package:newappfirebase/routes/app_pages.dart';
 import 'firebase_options.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
-
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +19,7 @@ void main() async {
   SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.immersiveSticky,
   );
-  runApp(MyApp());
+  runApp(const MyApp());
   
 }
 //USE FOR FORM SIGN in.out//
@@ -60,7 +52,7 @@ class MyApp extends StatelessWidget {
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, userSnapshot) {
               if (userSnapshot.connectionState == ConnectionState.waiting) {
-                return SplashScreen();
+                return const SplashScreen();
               }
               if (userSnapshot.hasData) {
                 return const EmailVerificationView();

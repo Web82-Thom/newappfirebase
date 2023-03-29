@@ -19,6 +19,7 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
+      clipBehavior: Clip.none,
       children: [
         Row(
           mainAxisAlignment: isMe! ? MainAxisAlignment.end : MainAxisAlignment.start,
@@ -27,18 +28,18 @@ class MessageBubble extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isMe! ? Colors.grey[300] : Colors.blue,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  topRight: Radius.circular(12),
-                  bottomLeft: !isMe! ? Radius.circular(0) : Radius.circular(12),
-                  bottomRight: !isMe! ? Radius.circular(0) : Radius.circular(12),
+                  topLeft: const Radius.circular(12),
+                  topRight: const Radius.circular(12),
+                  bottomLeft: !isMe! ? const Radius.circular(0) : const Radius.circular(12),
+                  bottomRight: !isMe! ? const Radius.circular(0) : const Radius.circular(12),
                 ),
               ),
               width: 140,
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 vertical: 10,
                 horizontal: 16,
               ),
-              margin: EdgeInsets.symmetric(
+              margin: const EdgeInsets.symmetric(
                 vertical: 10,
                 horizontal: 8,
               ),
@@ -73,13 +74,11 @@ class MessageBubble extends StatelessWidget {
           top: -10,
           left: isMe! ? null : 130,
           right: isMe! ? 130 : null,
-          child: CircleAvatar(
-            // backgroundImage: NetworkImage(userImage!),
+          child: const CircleAvatar(
             backgroundImage: NetworkImage("https://png.pngtree.com/background/20210709/original/pngtree-technology-network-it-poster-banner-background-picture-image_864222.jpg"),
           ),
         ),
-      ],
-      clipBehavior: Clip.none, //overflow
+      ], //overflow
     );
   }
 }

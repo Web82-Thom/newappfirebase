@@ -5,6 +5,8 @@ import 'package:newappfirebase/modules/chat/widgets/message_bubble.dart';
 
 
 class Messages extends StatelessWidget {
+  const Messages({super.key});
+
 
   Future curUser() async {
     // User useid=  
@@ -20,19 +22,17 @@ class Messages extends StatelessWidget {
       future: curUser(),
       builder:(ctx, futureSnapshot) { 
         if (futureSnapshot.connectionState == ConnectionState.waiting){
-          return Center(child: CircularProgressIndicator(),);
+          return const Center(child: CircularProgressIndicator(),);
         }
         return StreamBuilder(
           stream: FirebaseFirestore.instance.collection('chat').orderBy('createdAt', descending: true,).snapshots(),
           builder: (ctx, chatSnapshot) {
             if (chatSnapshot.connectionState == ConnectionState.waiting) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             }
             final chatDocs = chatSnapshot.data!.docs;
-            print(chatDocs.length);
-            
             return ListView.builder(
               reverse: true,
               itemCount: chatDocs.length,

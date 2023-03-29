@@ -1,18 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:newappfirebase/main.dart';
 import 'package:newappfirebase/modules/auth/controllers/auth_controller.dart';
-import 'package:newappfirebase/modules/auth/views/auth_view.dart';
 import 'package:newappfirebase/modules/auth/views/forgot_password_view.dart';
-import 'package:newappfirebase/ressources/widgets/utils.dart';
-import 'package:newappfirebase/routes/app_pages.dart';
 
 class SigninWidget extends StatefulWidget {
   final VoidCallback onClickedSignUp;
   
-  SigninWidget({
+  const SigninWidget({
     super.key,
     required this.onClickedSignUp
   });

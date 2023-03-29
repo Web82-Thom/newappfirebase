@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 part of 'app_pages.dart';
 
 abstract class Routes {
@@ -10,6 +12,8 @@ abstract class Routes {
   static const PROFILEVIEW = _Paths.PROFILEVIEW;
   static const CHATVIEW = _Paths.CHATVIEW;
   static const LISTUSERSVIEW = _Paths.LISTUSERSVIEW;
+  static const CHATROOM = _Paths.CHATROOM;
+  static const USERINFOS = _Paths.USERINFOS;
    
 }
 
@@ -21,4 +25,6 @@ abstract class _Paths {
   static const PROFILEVIEW = '/profile';
   static const CHATVIEW = '/chat';
   static const LISTUSERSVIEW = '/listusers';
+  static const CHATROOM = '/chatRoom';
+  static const USERINFOS = '/user-infos';
 }

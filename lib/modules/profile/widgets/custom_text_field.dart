@@ -17,10 +17,10 @@ class CustomTextField extends StatefulWidget {
 
 class _CustomTextFieldState extends State<CustomTextField> {
 
-  Color _underlineColor = Color(0xFFCCCCCC);
-  Color _mainColor = Color(0xFF07ac12);
-  Color _color1 = Color(0xFF515151);
-  Color _color2 = Color(0xff777777);
+  final Color _underlineColor = const Color(0xFFCCCCCC);
+  final Color _mainColor = const Color(0xFF07ac12);
+  final Color _color1 = const Color(0xFF515151);
+  final Color _color2 = const Color(0xff777777);
 
   @override
   Widget build(BuildContext context) {
