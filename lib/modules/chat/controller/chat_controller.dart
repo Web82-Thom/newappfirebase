@@ -16,7 +16,7 @@ class ChatController{
   }
 
   sendMessage(String userName){
-    List<String> users = [Constants.myName!,userName];
+    List<String> users = [Constants.myName,userName];
 
     String chatRoomId = getChatRoomId(Constants.myName,userName);
 

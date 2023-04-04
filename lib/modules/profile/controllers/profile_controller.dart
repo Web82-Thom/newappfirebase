@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newappfirebase/modules/auth/models/user_model.dart';
@@ -14,7 +15,11 @@ class ProfileController extends ChangeNotifier {
   CollectionReference usersCollection =
       FirebaseFirestore.instance.collection("users");
   ContactController contactController = ContactController();
-
+@override
+  void dispose() {
+    super.dispose();
+    members.bindStream(getAllMembers());
+  }
   // READ ONE USER
   Future<UserModel?> readUser() async {
     final docUser = FirebaseFirestore.instance
@@ -122,9 +127,9 @@ class ProfileController extends ChangeNotifier {
 
   Future userDeleteAccount({required String id}) async {
     await usersCollection.doc(id).delete().whenComplete(() {
+      auth.currentUser!.delete();
       authController.emailController.clear();
       authController.passwordController.clear();
-      FirebaseAuth.instance.currentUser!.delete();
       Get.toNamed(Routes.AUTH);
       Get.snackbar(
         "Suppression réussie",
@@ -134,4 +139,13 @@ class ProfileController extends ChangeNotifier {
       );
     });
   }
+  
+  ///================ GET ALL MEMBER EXCEPT ME ==============
+
+  RxList<UserModel> members = RxList<UserModel>([]);
+
+  Stream<List<UserModel>> getAllMembers() => usersCollection
+      .where("id", isNotEqualTo: auth.currentUser!.uid)
+      .snapshots()
+      .map((query) => query.docs.map((item) => UserModel.fromMap(item)).toList());
 }

@@ -6,9 +6,10 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:newappfirebase/helper/helperfunctions.dart';
+import 'package:newappfirebase/helper/constants.dart';
 import 'package:newappfirebase/main.dart';
 import 'package:newappfirebase/modules/auth/models/user_model.dart';
+import 'package:newappfirebase/modules/auth/widgets/signup_widget.dart';
 import 'package:newappfirebase/ressources/widgets/utils.dart';
 import '../../../routes/app_pages.dart';
 
@@ -19,15 +20,21 @@ class AuthController extends ChangeNotifier {
   final passwordController = TextEditingController();
   final birthdayController = TextEditingController();
   final ageController = TextEditingController();
-
+  File? image;
   final formKey = GlobalKey<FormState>();
   DateTime? selectedDate;
-  
+  User? user;
   FirebaseAuth auth = FirebaseAuth.instance;
   final firebase_storage.FirebaseStorage storage = firebase_storage.FirebaseStorage.instance;
   CollectionReference usersCollection = FirebaseFirestore.instance.collection("users");
+  // ImagePickerController imagePickerController = ImagePickerController();
   
-  File? userImageFile;
+
+  UserModel? _userFromFirebaseUser(User? user){
+    return user != null ? UserModel(
+      id: user.uid,
+      username: user.displayName) : null;
+  }
 
   //*****CREATE USER IN FIRESTORE*****/
   Future signin(context) async{
@@ -41,15 +48,17 @@ class AuthController extends ChangeNotifier {
      UserCredential result = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text, 
         password: passwordController.text);
-        User? user = result.user;
-        QuerySnapshot userInfoSnapshot =
-          await getUserInfo(emailController.text);
 
-        HelperFunctions.saveUserLoggedInSharedPreference(true);
-        HelperFunctions.saveUserNameSharedPreference(
-          userInfoSnapshot.docs[0]["username"]);
-        HelperFunctions.saveUserEmailSharedPreference(
-          userInfoSnapshot.docs[0]["email"]);
+        User? user = result.user;
+        getUserProfile();
+        _userFromFirebaseUser(user);
+        notifyListeners();
+
+        
+        print("user! == ${user!}");
+        print("user!.displayName == ${user.displayName}");
+        print("user!.displayName == ${tempUser["username"]}");
+
     } on FirebaseAuthException catch (e) {
       Utils.showSnackBar(e.message);
     }
@@ -61,7 +70,9 @@ class AuthController extends ChangeNotifier {
     required String email,
     required DateTime birthday,
     required String age,
-    // required File userurl,
+     File? url,
+    required String userToken,
+    required Timestamp createdAt,
   }) async{
     usersCollection
     .doc(auth.currentUser!.uid)
@@ -71,7 +82,9 @@ class AuthController extends ChangeNotifier {
         email: email,
         birthday: birthday,
         age: age,
-        // url: userurl.path,
+        url: "user_image/profile.png" ,
+        userToken : userToken,
+        createdAt: Timestamp.now(),
       ).toMap(),
     ).catchError((error) =>
       Utils.showSnackBar(error),
@@ -90,24 +103,28 @@ class AuthController extends ChangeNotifier {
     );
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text, password: passwordController.text).then((value) {
-          getUserInfo(emailController.text);
-          HelperFunctions.saveUserLoggedInSharedPreference(true);
-          HelperFunctions.saveUserNameSharedPreference(userNameController.text);
-          HelperFunctions.saveUserEmailSharedPreference(emailController.text);
-        })
-        .whenComplete(() {
-          userCreateProfile(
+     UserCredential result =  await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text, password: passwordController.text
+        );
+        User? user = result.user;
+        userCreateProfile(
             username: userNameController.text, 
             email: emailController.text,
             birthday: DateTime.parse(selectedDate.toString()),
             age: ageController.text,
-            // userurl: authController.userImageFile!,
+            // url: userImageFile!,
+            userToken: auth.currentUser!.uid,
+            createdAt: Timestamp.now(),
           );
-        },
-              
-        );
+          //send image//
+          // imagePickerController.uploadImage(filePath:'${userImageFile!.path}.png', docId: auth.currentUser!.uid);
+          getUserProfile();
+          _userFromFirebaseUser(user);
+          // notifyListeners();
+          // getUserInfo(emailController.text);
+          // HelperFunctions.saveUserLoggedInSharedPreference(true);
+          // HelperFunctions.saveUserNameSharedPreference(userNameController.text);
+          // HelperFunctions.saveUserEmailSharedPreference(emailController.text);
     } on FirebaseAuthException catch (e){
       Utils.showSnackBar(e.message);
     }
@@ -159,15 +176,44 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  void initState() {
-    initState();
-    notifyListeners();
+  var tempUser = {};
+  void getUserProfile() {
+    FirebaseFirestore.instance
+      .collection('users')
+      .doc(auth.currentUser?.uid)
+      .get()
+      .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        tempUser = documentSnapshot.data() as Map;
+        Constants.myName = tempUser['username'];
+        notifyListeners();
+        print('Document ressources: ${documentSnapshot.data()}');
+        print('tempUser ressources: $tempUser');
+        print( tempUser['username']);
+        print( 'Constants.myName' + Constants.myName);
+
+        
+      } else {
+        print('Document does not exist on the database');
+      }
+    });
   }
 
+  void initState() {
+    initState();
+    getUserProfile();
+    notifyListeners();
+  }
+  @override
+void ready(){
+  ready();
+  getUserProfile();
+}
   @override
   void dispose(){
     emailController.dispose();
     passwordController.dispose();
+    getUserProfile();
     super.dispose();
   }
   void close(){

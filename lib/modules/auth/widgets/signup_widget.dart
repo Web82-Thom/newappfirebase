@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:newappfirebase/modules/auth/controllers/auth_controller.dart';
-import 'package:newappfirebase/ressources/widgets/utils.dart';
 import 'package:intl/intl.dart';
 
 class SignupWidget extends StatefulWidget {
@@ -15,10 +17,22 @@ class SignupWidget extends StatefulWidget {
 } 
 
   AuthController authController = AuthController();
+  // ImagePickerController imagePickerController = ImagePickerController();
   bool _obscureText = true;
   IconData _iconVisible = Icons.visibility_off;
   
+  // File? userImageFile;
+  
 class _SignupWidgetState extends State<SignupWidget> {
+ 
+//  void _pickedImage(File image) {
+//     setState(() {
+//       userImageFile = image;
+//       authController.userImageFile = userImageFile;
+//       imagePickerController.imageSignUp = userImageFile;
+//     });
+//   }
+  
   @override
   Widget build(BuildContext context) {
     return  SafeArea(
@@ -42,6 +56,8 @@ class _SignupWidgetState extends State<SignupWidget> {
                       ),
                     ),
                     const SizedBox(height: 40,),
+                  //*****PICKER IMAGE*****//
+                  // UserImagePicker(_pickedImage),  
                   //*****USERNAME*****//
                     TextFormField(
                       style: const TextStyle(color: Colors.white,),
@@ -156,9 +172,9 @@ class _SignupWidgetState extends State<SignupWidget> {
                   //*****BUTTON SIGNUP*****//
                     ElevatedButton.icon(
                       onPressed: (){
-                        authController.selectedDate != null ?
-                        authController.signup(context):
-                        Utils.showSnackBar('Manque la date de naissance');
+                        // authController.selectedDate != null ?
+                        authController.signup(context);
+                        // :Utils.showSnackBar('Manque la date de naissance');
                       }, 
                       icon: const Icon(Icons.lock_open, size: 25.00), 
                       style: ElevatedButton.styleFrom(

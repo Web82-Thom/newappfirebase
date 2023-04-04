@@ -1,5 +1,5 @@
 
 class Constants{
-  static String? myId = "";
-  static String? myName = "";
+  static String myId = "";
+  static String myName = "";
 }

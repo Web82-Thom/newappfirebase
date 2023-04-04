@@ -72,7 +72,8 @@ class _HomeViewState extends State<HomeView> {
                   Get.toNamed(Routes.PROFILEVIEW);
                 }
                 else if (itemIdentifier == 'logout') {
-                  authController.signOut();
+                  // authController.signOut();
+                  Get.toNamed(Routes.AUTH);
                 }
               },
             ),

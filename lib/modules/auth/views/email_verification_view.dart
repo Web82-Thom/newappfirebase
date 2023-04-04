@@ -17,6 +17,7 @@ class _EmailVerificationViewState extends State<EmailVerificationView> {
   bool isEmailVerified = false;
   bool cancelResendEmail= false;
   Timer? timer;
+  FirebaseAuth auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -66,7 +67,8 @@ class _EmailVerificationViewState extends State<EmailVerificationView> {
               const SizedBox(height: 8,),
               TextButton(
                 onPressed: (){
-                  FirebaseAuth.instance.signOut();
+                  // FirebaseAuth.instance.signOut();
+                  profileController.userDeleteAccount(id : auth.currentUser!.uid,);
                 }, 
                 child: const Text("Annuler"),
               ),

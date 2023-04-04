@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:newappfirebase/ressources/widgets/utils.dart';
 
 class UserModel {
@@ -8,8 +9,9 @@ class UserModel {
   DateTime? birthday;
   String? age;
   String? userToken;
-  // Timestamp? createdAt;
-  // String? url;
+  String? url;
+  Timestamp? createdAt;
+
 
   UserModel({
     this.id, 
@@ -18,7 +20,8 @@ class UserModel {
     this.birthday,
     this.age,
     this.userToken,
-    // this.url, 
+    this.url, 
+    this.createdAt,
   }); 
 
   Map<String, dynamic> toMap()=> {
@@ -28,7 +31,8 @@ class UserModel {
     "birthday" : Timestamp.fromDate(birthday!),
     "age" : age,
     "userToken" : userToken,
-    // "url": url,
+    "url": url ??  "user_image/profile.png",
+    "createdAt" : createdAt
   };
 
   UserModel.fromMap(DocumentSnapshot data) {
@@ -38,7 +42,8 @@ class UserModel {
     birthday = Utils.toDateTime(data["birthday"]);
     age = data["age"];
     userToken = data["userToken"];
-    // url = data["url"];
+    url = data["url"];
+    createdAt = data["createdAt"];
   }
 
   Map<String, dynamic>toJson() => {
@@ -48,7 +53,9 @@ class UserModel {
     "birthday" : Timestamp.fromDate(birthday!),
     "age" : age,
     "userToken" : userToken,
-    // 'url': url,
+        "url": url ??  Image.asset("assets/images/profile.png"),
+
+    'createdAt': createdAt,
   };
 
   static UserModel fromJson(Map<String, dynamic> json) => UserModel(
@@ -58,7 +65,8 @@ class UserModel {
     birthday: Utils.toDateTime(json["birthday"]),
     age: json['age'],
     userToken: json['userToken'],
-    // url: json['url'],
+    url: json['url'],
+    createdAt: json['createdAt'],
   );
 
   factory UserModel.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> document ) {
@@ -70,7 +78,9 @@ class UserModel {
       birthday: Utils.toDateTime(data["birthday"]),
       age: data["age"],
       userToken: data["userToken"],
-      );
+      url: data["url"],
+      createdAt: data["createdAt"],
+    );
   }
 
 
@@ -81,7 +91,8 @@ Map<String, dynamic>toFirestore() => {
     "birthday" : Timestamp.fromDate(birthday!),//??Timestamp.now(),
     "age" : age??"00",
     "userToken" : userToken??"invited",
-    // 'url': url,
+    "url": url ??  Image.asset("assets/images/profile.png"),
+    "createdAt": createdAt,
   };
   factory UserModel.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> snapshot,
@@ -95,6 +106,8 @@ Map<String, dynamic>toFirestore() => {
       birthday: Utils.toDateTime(data?["birthday"]),
       age: data?["age"],
       userToken: data?["userToken"],
+      url: data?["url"] ?? Image.asset("assets/images/profile.png"),
+      createdAt: data?["createdAt"],
     );
   }
   

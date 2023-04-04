@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newappfirebase/modules/auth/controllers/auth_controller.dart';
+import 'package:newappfirebase/modules/auth/views/email_verification_view.dart';
 import 'package:newappfirebase/modules/auth/widgets/signin_widget.dart';
 import 'package:newappfirebase/modules/auth/widgets/signup_widget.dart';
 
