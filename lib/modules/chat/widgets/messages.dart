@@ -3,16 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:newappfirebase/modules/chat/widgets/message_bubble.dart';
 
-
+      ////////////////////////////////
+      //      CHAT GENERAL          //
+      ////////////////////////////////
+      
 class Messages extends StatelessWidget {
   const Messages({super.key});
 
-
   Future curUser() async {
-    // User useid=  
     FirebaseAuth.instance.currentUser;
-    // print('cest $useid');
-    // print(useid.displayName);
   }
 
   @override
@@ -39,7 +38,7 @@ class Messages extends StatelessWidget {
               itemBuilder: (ctx, index) => MessageBubble(
                 chatDocs[index]['text'],
                 chatDocs[index]['username'],
-                // chatDocs[index]['userImage'],
+                chatDocs[index]['userImage'],
                 chatDocs[index]['userId'] == currentUser.uid,
                 key: ValueKey(chatDocs[index].data()['documentID']),
               ),

@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:newappfirebase/helper/constants.dart';
 import 'package:newappfirebase/main.dart';
 import 'package:newappfirebase/modules/auth/models/user_model.dart';
@@ -20,20 +22,27 @@ class AuthController extends ChangeNotifier {
   final passwordController = TextEditingController();
   final birthdayController = TextEditingController();
   final ageController = TextEditingController();
-  File? image;
+
+  XFile? file;
   final formKey = GlobalKey<FormState>();
   DateTime? selectedDate;
   User? user;
+
   FirebaseAuth auth = FirebaseAuth.instance;
   final firebase_storage.FirebaseStorage storage = firebase_storage.FirebaseStorage.instance;
   CollectionReference usersCollection = FirebaseFirestore.instance.collection("users");
-  // ImagePickerController imagePickerController = ImagePickerController();
-  
 
   UserModel? _userFromFirebaseUser(User? user){
     return user != null ? UserModel(
-      id: user.uid,
-      username: user.displayName) : null;
+      id: user.uid,) : null;
+  }
+
+  bool _isLoading = false;
+  bool get isloading => _isLoading;
+
+  setIsLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
   }
 
   //*****CREATE USER IN FIRESTORE*****/
@@ -48,17 +57,10 @@ class AuthController extends ChangeNotifier {
      UserCredential result = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text, 
         password: passwordController.text);
-
-        User? user = result.user;
+        user = result.user;
         getUserProfile();
         _userFromFirebaseUser(user);
         notifyListeners();
-
-        
-        print("user! == ${user!}");
-        print("user!.displayName == ${user.displayName}");
-        print("user!.displayName == ${tempUser["username"]}");
-
     } on FirebaseAuthException catch (e) {
       Utils.showSnackBar(e.message);
     }
@@ -69,20 +71,19 @@ class AuthController extends ChangeNotifier {
     required String username,
     required String email,
     required DateTime birthday,
-    required String age,
-     File? url,
+    required File? url,
     required String userToken,
     required Timestamp createdAt,
   }) async{
     usersCollection
     .doc(auth.currentUser!.uid)
-    .set(UserModel(
+    .set(
+      UserModel(
         id: auth.currentUser!.uid,
         username: username,
         email: email,
         birthday: birthday,
-        age: age,
-        url: "user_image/profile.png" ,
+        url: file!.path ,
         userToken : userToken,
         createdAt: Timestamp.now(),
       ).toMap(),
@@ -91,44 +92,70 @@ class AuthController extends ChangeNotifier {
     );
   }
 
-  Future signup(context) async {
+  Future signup({
+    required String name,
+    required String email,
+    required String password,
+    required DateTime birthday,
+    required String url,
+  }) async {
     final isValid = formKey.currentState!.validate();
     if (!isValid) return;
-
-    showDialog(
-      context: context, 
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-
     try {
-     UserCredential result =  await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential result =  await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text, password: passwordController.text
+      );
+      user = auth.currentUser;
+      usersCollection
+        .doc(user!.uid)
+        .set(
+          UserModel(
+            id: user!.uid,
+            email: email,
+            username: name,
+            birthday: birthday,
+            url: url,
+          ).toMap(),
         );
-        User? user = result.user;
-        userCreateProfile(
-            username: userNameController.text, 
-            email: emailController.text,
-            birthday: DateTime.parse(selectedDate.toString()),
-            age: ageController.text,
-            // url: userImageFile!,
-            userToken: auth.currentUser!.uid,
-            createdAt: Timestamp.now(),
-          );
-          //send image//
-          // imagePickerController.uploadImage(filePath:'${userImageFile!.path}.png', docId: auth.currentUser!.uid);
-          getUserProfile();
-          _userFromFirebaseUser(user);
-          // notifyListeners();
-          // getUserInfo(emailController.text);
-          // HelperFunctions.saveUserLoggedInSharedPreference(true);
-          // HelperFunctions.saveUserNameSharedPreference(userNameController.text);
-          // HelperFunctions.saveUserEmailSharedPreference(emailController.text);
+      userCreateProfile(
+        username: userNameController.text, 
+        email: emailController.text,
+        birthday: DateTime.parse(selectedDate.toString()),
+        url: File(userImageFile!.path),
+        userToken: auth.currentUser!.uid,
+        createdAt: Timestamp.now(),
+      );
+      //send image//
+      uploadImage();
+      getUserProfile();
+      _userFromFirebaseUser(user);
     } on FirebaseAuthException catch (e){
       Utils.showSnackBar(e.message);
     }
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
+  }
+  
+  Future uploadImage() async {
+    Reference referenceRoot = FirebaseStorage.instance.ref();
+    Reference referenceDirImages = referenceRoot.child('user_image');
+    Reference referenceImageToUpload = referenceDirImages.child('${auth.currentUser!.uid}.png');
+      try {
+      await referenceImageToUpload.putFile(File(file!.path));
+      final imageURL = await referenceImageToUpload.getDownloadURL();
+        
+      FirebaseFirestore.instance.collection("users")
+        .doc(auth.currentUser!.uid)
+        .update({'url': imageURL})
+        .whenComplete(() {
+          // downloadURLCurrentUser();
+          setIsLoading(false);
+          notifyListeners();
+          Utils.showSnackBar('Image modifier');
+        },
+      );
+    }  catch (error) {
+      Utils.showSnackBar(error.toString());
+    }
   }
 
   //*****SIGNOUT*****/
@@ -187,14 +214,8 @@ class AuthController extends ChangeNotifier {
         tempUser = documentSnapshot.data() as Map;
         Constants.myName = tempUser['username'];
         notifyListeners();
-        print('Document ressources: ${documentSnapshot.data()}');
-        print('tempUser ressources: $tempUser');
-        print( tempUser['username']);
-        print( 'Constants.myName' + Constants.myName);
-
-        
       } else {
-        print('Document does not exist on the database');
+        Utils.showSnackBar('Document does not exist on the database');
       }
     });
   }
@@ -221,5 +242,4 @@ void ready(){
     passwordController.clear();
     close();
   }
-  
 }

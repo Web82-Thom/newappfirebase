@@ -1,40 +1,36 @@
 import 'package:flutter/material.dart';
 
-      ////////////////////////////////
-      // CHAT BUBBLE IN GENERAL CHAT//
-      ////////////////////////////////
+class MessageTile extends StatelessWidget {
+  final String? message;
+  final String? username;
+  final String? url;
+  final bool? sendByMe;
 
-class MessageBubble extends StatelessWidget {
-  final Key? key;
-  final String? text;
-  final String? userName;
-  final String? userImage;
-  final bool? isMe;
-  
-  const MessageBubble(
-    this.text,
-    this.userName,
-    this.userImage,
-    this.isMe, {
-    this.key,
+  const MessageTile({
+    super.key,
+    this.username,
+    required this.message, 
+    required this.sendByMe, 
+    this.url,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return 
+    Stack(
       clipBehavior: Clip.none,
       children: [
         Row(
-          mainAxisAlignment: isMe! ? MainAxisAlignment.end : MainAxisAlignment.start,
+          mainAxisAlignment: sendByMe! ? MainAxisAlignment.end : MainAxisAlignment.start,
           children: <Widget>[
             Container(
               decoration: BoxDecoration(
-                color: isMe! ? Colors.grey[300] : Colors.blue,
+                color: sendByMe! ? Colors.grey[300] : Colors.blue,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(12),
                   topRight: const Radius.circular(12),
-                  bottomLeft: !isMe! ? const Radius.circular(0) : const Radius.circular(12),
-                  bottomRight: !isMe! ? const Radius.circular(0) : const Radius.circular(12),
+                  bottomLeft: !sendByMe! ? const Radius.circular(0) : const Radius.circular(12),
+                  bottomRight: !sendByMe! ? const Radius.circular(0) : const Radius.circular(12),
                 ),
               ),
               width: 140,
@@ -48,25 +44,25 @@ class MessageBubble extends StatelessWidget {
               ),
               child: Column(
                 crossAxisAlignment:
-                    isMe! ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    sendByMe! ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    isMe! ? 'Moi' : userName!,
+                    sendByMe! ? 'Moi' : username!,
                     style: TextStyle(
-                      color: isMe!
+                      color: sendByMe!
                         ? Colors.green
                         : Colors.amber,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
-                    text!,
+                    message!,
                     style: TextStyle(
-                      color: isMe!
+                      color: sendByMe!
                         ? Colors.black
                         : Colors.white,
                     ),
-                    textAlign: isMe! ? TextAlign.end : TextAlign.start,
+                    textAlign: sendByMe! ? TextAlign.end : TextAlign.start,
                   ),
                 ],
               ),
@@ -75,10 +71,10 @@ class MessageBubble extends StatelessWidget {
         ),
         Positioned(
           top: -10,
-          left: isMe! ? null : 130,
-          right: isMe! ? 130 : null,
+          left: sendByMe! ? null : 130,
+          right: sendByMe! ? 130 : null,
           child: CircleAvatar(
-            backgroundImage: NetworkImage(userImage!),
+            backgroundImage: NetworkImage(url!),
           ),
         ),
       ], //overflow

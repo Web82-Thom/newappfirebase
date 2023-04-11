@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newappfirebase/modules/auth/controllers/auth_controller.dart';
@@ -18,6 +19,7 @@ class HomeView extends StatefulWidget {
   AuthController authController = AuthController();
   ContactController contactController = ContactController();
   ProfileController profileController = ProfileController();
+  FirebaseAuth auth = FirebaseAuth.instance;
 
 class _HomeViewState extends State<HomeView> {
   @override
@@ -81,7 +83,7 @@ class _HomeViewState extends State<HomeView> {
         ),
         body: SingleChildScrollView(
           child: FutureBuilder<UserModel?>(
-            future: profileController.readUser(),
+            future: profileController.readUser(auth.currentUser!.uid),
             builder: (context, snapshot) {
               final user = snapshot.data;
               return user != null ?
@@ -111,6 +113,7 @@ class _HomeViewState extends State<HomeView> {
                                   Text("\u2022 Création d'un tchat pour tous,", style: TextStyle(color: Colors.white, fontSize: 16),),
                                   Text("\u2022 Création d'un tchat privatif,", style: TextStyle(color: Colors.white, fontSize: 16),),
                                   Text("\u2022 Rechercher un membre et commencer une conversation", style: TextStyle(color: Colors.white, fontSize: 16),),
+                                  Text("\u2022 Gestion des images avec Firebase", style: TextStyle(color: Colors.white, fontSize: 16),),
                                   SizedBox(height: 5,),
                                   Text("CRUD Firebase, Firestore", style: TextStyle(color: Colors.white, fontSize: 16),),
                                   Padding(
@@ -142,8 +145,8 @@ class _HomeViewState extends State<HomeView> {
                         SizedBox(
                           width: MediaQuery.of(context).size.width / 2,
                           child: GestureDetector(
-                            onTap: () {
-                              Get.toNamed(Routes.CHATVIEW);
+                            onTap: () { 
+                              Get.toNamed(Routes.CHATVIEW); 
                             },
                             child: Card(
                               elevation: 10,

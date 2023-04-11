@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:newappfirebase/helper/constants.dart';
 import 'package:newappfirebase/helper/helperfunctions.dart';
+import 'package:newappfirebase/modules/auth/controllers/auth_controller.dart';
 import 'package:newappfirebase/modules/auth/models/user_model.dart';
 import 'package:newappfirebase/modules/chat/widgets/chatRoomsTile_widget.dart';
 import 'package:newappfirebase/modules/chat/widgets/search.dart';
@@ -12,6 +13,7 @@ import 'package:newappfirebase/modules/profile/controllers/profile_controller.da
 import 'package:newappfirebase/ressources/firebaseApi/firebaseapi.dart';
 import 'package:newappfirebase/ressources/firebaseApi/firebasefile.dart';
 import 'package:newappfirebase/routes/app_pages.dart';
+import '../../profile/widgets/widgets_image_picker/image_loader_widget.dart';
 import '../controller/chat_controller.dart';
 
 class ChatRoom extends StatefulWidget {
@@ -21,6 +23,8 @@ class ChatRoom extends StatefulWidget {
   _ChatRoomState createState() => _ChatRoomState();
 }
 
+AuthController authController = AuthController();
+
 class _ChatRoomState extends State<ChatRoom> {
   late Future<List<FirebaseFile>> futureFiles;
   late Future<List<UserModel>> userModel;
@@ -29,14 +33,11 @@ class _ChatRoomState extends State<ChatRoom> {
     super.initState();
     getUserInfogetChats();
     profileController.getAllMembers();
-    profileController.members;
-    futureFiles = FirebaseApi.listAll('user_image/');
   }
   Stream? chatRooms;
   bool isList = true;
   ProfileController profileController = ProfileController();
   ChatController chatController = ChatController();
-  UserModel? user;
 
   Widget chatRoomsList() {
     return 
@@ -145,7 +146,7 @@ class _ChatRoomState extends State<ChatRoom> {
                         splashColor: Colors.amber,
                         textColor: Colors.white,
                         trailing: CircleAvatar(
-                          
+                          backgroundImage: NetworkImage(file.url.toString(),),
                         ),
                         title: Text(snapshot.data![index].username.toString()),
                       ),
@@ -160,76 +161,6 @@ class _ChatRoomState extends State<ChatRoom> {
       } 
     );
   }
-
-  // Widget contactList() {
-  //   return FutureBuilder<List<FirebaseFile>>(
-  //     future: futureFiles,
-  //     builder: (context, snapshot){
-  //       final items = snapshot.data;
-  //       if(snapshot.connectionState == ConnectionState.done){
-  //         if(snapshot.hasData || items != null){
-  //           return ListView.builder(
-  //             itemCount:items!.length,
-  //             itemBuilder: (ctx, index){
-  //               final file = items[index];
-  //               return Slidable(
-  //                 startActionPane: ActionPane(
-  //                   motion: const StretchMotion(), 
-  //                   children: [
-  //                     SlidableAction(
-  //                       onPressed: (context){
-  //                         Get.toNamed(Routes.USERINFOS);
-  //                       },
-  //                       backgroundColor: Colors.green, 
-  //                       icon: Icons.remove_red_eye_sharp,
-  //                       label: 'Détails',
-  //                     ),
-  //                     SlidableAction(
-  //                       onPressed: (context){
-  //                         // ignore: avoid_print
-  //                         print("Signaler");
-  //                       },
-  //                       backgroundColor: Colors.orange, 
-  //                       icon: Icons.remove_red_eye_sharp,
-  //                       label: 'Signaler',
-  //                     ),
-  //                   ], 
-  //                 ),
-  //                 endActionPane: ActionPane(
-  //                   motion: const StretchMotion(), 
-  //                   children: [
-  //                     SlidableAction(
-  //                       onPressed: (context){
-  //                         // ignore: avoid_print
-  //                         print("ajouter aux amis");
-  //                       },
-  //                       backgroundColor: Colors.amber, 
-  //                       icon: Icons.add,
-  //                       label: 'Ajouter aux amis',
-  //                     ),
-  //                   ], 
-  //                 ),
-  //                 child: Column(
-  //                   children: [
-  //                     ListTile(
-  //                       hoverColor: Colors.green,
-  //                       splashColor: Colors.amber,
-  //                       textColor: Colors.white,
-  //                       trailing: CircleAvatar(backgroundImage: NetworkImage(file.url),
-  //                         ),
-  //                       title: Text(file.name.toString()),
-  //                     ),
-  //                     const SizedBox(height: 12,)
-  //                   ],
-  //                 ),
-  //               );
-  //             },
-  //           );
-  //         } 
-  //       } return const Center(child: Text("aucun membre"),);
-  //     } 
-  //   );
-  // }
 
   Future getUserInfogetChats() async {
     // Constants.myName = (await HelperFunctions.getUserNameSharedPreference())!;

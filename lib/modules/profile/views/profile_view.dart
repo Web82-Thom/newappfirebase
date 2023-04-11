@@ -1,13 +1,23 @@
 // ignore_for_file: avoid_print
 
+import 'dart:io';
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:newappfirebase/modules/auth/models/user_model.dart';
+import 'package:newappfirebase/modules/auth/widgets/signup_widget.dart';
+import 'package:newappfirebase/modules/profile/controllers/image_picker_controller.dart';
 import 'package:newappfirebase/modules/profile/controllers/profile_controller.dart';
 import 'package:newappfirebase/modules/profile/widgets/custom_text_field.dart';
+// import 'package:newappfirebase/modules/profile/widgets/widgets_image_picker/file_picker_widget.dart';
+import 'package:newappfirebase/modules/profile/widgets/widgets_image_picker/image_loader_widget.dart';
+// import 'package:newappfirebase/modules/profile/widgets/widgets_image_picker/user_image_picker.dart';
 import 'package:newappfirebase/ressources/widgets/dialogues/dialog_confirm_button.dart';
 import 'package:newappfirebase/routes/app_pages.dart';
 
@@ -20,10 +30,12 @@ class ProfileView extends StatefulWidget {
 
   @override
   State<ProfileView> createState() => _ProfileViewState();
+
 }
 
 AuthController authController = AuthController();
 ProfileController profileController = ProfileController();
+ImagePickerController pickerController = ImagePickerController();
 
 FirebaseAuth auth = FirebaseAuth.instance;
 TextEditingController _usernameField = TextEditingController();
@@ -31,13 +43,13 @@ TextEditingController _emailField = TextEditingController();
 TextEditingController _ageField = TextEditingController();
 DateTime? selectedDate;
 
+File? userImageFile;
 
 class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
-    
     return FutureBuilder<UserModel?>(
-      future: profileController.readUser(),
+      future: profileController.readUser(auth.currentUser!.uid),
       builder: (context, snapshot) {
         final user = snapshot.data;
         return SafeArea(
@@ -57,13 +69,8 @@ class _ProfileViewState extends State<ProfileView> {
               child: snapshot.hasData ? 
                 Column(
                   children: [
-                    
-                    GestureDetector(
-                      onTap: () {
-                        
-                      },
-                      child: Image.asset("assets/images/profile.png")
-                      ) ,
+                    const SizedBox(height: 10,),
+                    _createProfilePicture(),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
@@ -110,15 +117,17 @@ class _ProfileViewState extends State<ProfileView> {
                                   Get.defaultDialog(
                                     title: "Modifier le nom d'utilisateur",
                                     content: CustomTextField(
-                                        controller: _usernameField,
-                                        labelText: "Nom d'utilisateur",
-                                        isObscure: false),
+                                      controller: _usernameField,
+                                      labelText: "Nom d'utilisateur",
+                                      isObscure: false,
+                                    ),
                                     cancel: const DialogCancelButton(),
                                     confirm: DialogConfirmButton(
                                       onPressed: () {
                                         profileController.updateUsername(
-                                            id: user.id.toString(),
-                                            username: _usernameField.text);
+                                          id: user.id.toString(),
+                                          username: _usernameField.text,
+                                        );
                                         _usernameField.clear();
                                         Navigator.pop(context);
                                       },
@@ -155,42 +164,9 @@ class _ProfileViewState extends State<ProfileView> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  user.age.toString(),
+                                  pickerController.ageCalculator(user.birthday!).toString(),
                                   style: const TextStyle(
                                     fontSize: 16, color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              ///=============AGE EDIT=============///
-                              GestureDetector(
-                                onTap: () {
-                                  Get.defaultDialog(
-                                    title: "Modifier mon age",
-                                    content: CustomTextField(
-                                      textInputType: TextInputType.number,
-                                      controller: _ageField,
-                                      labelText: "Age",
-                                      isObscure: false,
-                                    ),
-                                    cancel: const DialogCancelButton(),
-                                    confirm: DialogConfirmButton(
-                                      onPressed: () {
-                                        profileController.updateAge(
-                                          id: user.id.toString(),
-                                          age: _ageField.text,
-                                        );
-                                        _ageField.clear();
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                  );
-                                },
-                                child: const Text(
-                                  'Edit',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.amber,
                                   ),
                                 ),
                               ),
@@ -366,16 +342,99 @@ class _ProfileViewState extends State<ProfileView> {
                       SizedBox(
                         height: 100,
                         width : 100,
-                        child: CircularProgressIndicator(strokeWidth: 5,)),
+                        child: CircularProgressIndicator(strokeWidth: 5,),
+                      ),
                       SizedBox(height: 100.00,),
                       Text('Chargement des données...', style: TextStyle(color: Colors.white),),
                     ],
                   ),
                 ),
-            ),
+              ),
             ),
           );
         }
       );
-    }
   }
+
+  Widget _createProfilePicture() {
+    final Size size = MediaQuery.of(context).size;
+    final double profilePictureSize = MediaQuery.of(context).size.width / 3;
+    return Align(
+      alignment: Alignment.center,
+      child: Container(
+        margin: EdgeInsets.only(top: 40),
+        width: profilePictureSize,
+        height: profilePictureSize,
+        child: GestureDetector(
+          onTap: () {
+            _showPopupUpdatePicture();
+          },
+          child: Stack(
+            children: [
+              ImageLoaderWidget(
+                height: 150,
+                width: 150,
+                url: authController.tempUser['url'].toString(),
+                // url: pickerController.imagePath.value,
+                isCircular: true,
+              ),
+              // create edit icon in the picture
+              Container(
+                width: 30,
+                height: 30,
+                margin: EdgeInsets.only(
+                    top: 0, left: MediaQuery.of(context).size.width / 4),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: 1,
+                  child: const Icon(Icons.edit, size: 12, color: Colors.amber, ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showPopupUpdatePicture() {
+    AlertDialog alert = AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      title: Text(
+        "Modifier l'image de profil",
+        style: TextStyle(fontSize: 18),
+      ),
+      content: FittedBox(
+        child:
+        Row(
+          children: [
+            IconButton(
+              onPressed: () {
+                imagePickerController.updateUrlUser(ImageSource.gallery);
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.add_photo_alternate),
+            ),
+            IconButton(
+              onPressed: ()  {
+                imagePickerController.updateUrlUser(ImageSource.camera);
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.add_a_photo),
+            ),
+          ],
+        ) 
+      ),
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+}

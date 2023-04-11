@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:newappfirebase/helper/constants.dart';
 import 'package:newappfirebase/modules/chat/controller/chat_controller.dart';
+import 'package:newappfirebase/modules/chat/widgets/message_tile_widget.dart';
 import 'package:newappfirebase/modules/chat/widgets/widget.dart';
 
 class Chat extends StatefulWidget {
@@ -28,6 +30,8 @@ class _ChatState extends State<Chat> {
           itemCount: snapshot.data!.docs.length,
           itemBuilder: (context, index){
             return MessageTile(
+              username: snapshot.data!.docs[index]["username"],
+              url: snapshot.data!.docs[index]["imageUrl"],
               message: snapshot.data!.docs[index]["message"],
               sendByMe: Constants.myName == snapshot.data!.docs[index]["sendBy"],
             );
@@ -38,18 +42,19 @@ class _ChatState extends State<Chat> {
     );
   }
 
-  addMessage() {
+  addMessage() async{
+    FocusScope.of(context).unfocus();
+    final user =  FirebaseAuth.instance.currentUser;
+    final userData = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
     if (messageEditingController.text.isNotEmpty) {
-      Map<String, dynamic> chatMessageMap = {
+      Map<String, dynamic> chatMessageData = {
         "sendBy": Constants.myName,
         "message": messageEditingController.text,
-        'time': DateTime
-            .now()
-            .millisecondsSinceEpoch,
+        "imageUrl" : userData['url'],
+        "username" : userData["username"],
+        'time': DateTime.now().millisecondsSinceEpoch,
       };
-
-      chatController.addMessage(widget.chatRoomId!, chatMessageMap);
-
+      chatController.addMessage(widget.chatRoomId!, chatMessageData);
       setState(() {
         messageEditingController.text = "";
       });
@@ -74,10 +79,7 @@ class _ChatState extends State<Chat> {
         children: [
           chatMessages(),
           Container(alignment: Alignment.bottomCenter,
-            width: MediaQuery
-                .of(context)
-                .size
-                .width,
+            width: MediaQuery.of(context).size.width,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               color: const Color(0x54FFFFFF),
@@ -88,37 +90,21 @@ class _ChatState extends State<Chat> {
                       controller: messageEditingController,
                       style: simpleTextStyle(),
                       decoration: const InputDecoration(
-                          hintText: "Message ...",
-                          hintStyle: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                          border: InputBorder.none
+                        hintText: "Message ...",
+                        hintStyle: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                        border: InputBorder.none
                       ),
                     ),
                   ),
                   const SizedBox(width: 16,),
-                  GestureDetector(
-                    onTap: () {
+                  IconButton(
+                    onPressed: () {
                       addMessage();
-                    },
-                    child: Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                                colors: [
-                                  Color(0x36FFFFFF),
-                                  Color(0x0FFFFFFF)
-                                ],
-                                begin: FractionalOffset.topLeft,
-                                end: FractionalOffset.bottomRight
-                            ),
-                            borderRadius: BorderRadius.circular(40)
-                        ),
-                        padding: const EdgeInsets.all(12),
-                        child: Image.asset("assets/images/profile.png",
-                          height: 25, width: 25,)),
+                    }, 
+                    icon: const Icon(Icons.send,),
                   ),
                 ],
               ),
@@ -128,61 +114,7 @@ class _ChatState extends State<Chat> {
       ),
     );
   }
-
 }
 
-class MessageTile extends StatelessWidget {
-  final String message;
-  final bool sendByMe;
 
-  const MessageTile({super.key, required this.message, required this.sendByMe});
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-          top: 8,
-          bottom: 8,
-          left: sendByMe ? 0 : 24,
-          right: sendByMe ? 24 : 0),
-      alignment: sendByMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: sendByMe
-            ? const EdgeInsets.only(left: 30)
-            : const EdgeInsets.only(right: 30),
-        padding: const EdgeInsets.only(
-            top: 17, bottom: 17, left: 20, right: 20),
-        decoration: BoxDecoration(
-            borderRadius: sendByMe ? const BorderRadius.only(
-                topLeft: Radius.circular(23),
-                topRight: Radius.circular(23),
-                bottomLeft: Radius.circular(23)
-            ) :
-            const BorderRadius.only(
-        topLeft: Radius.circular(23),
-          topRight: Radius.circular(23),
-          bottomRight: Radius.circular(23)),
-            gradient: LinearGradient(
-              colors: sendByMe ? [
-                const Color(0xff007EF4),
-                const Color(0xff2A75BC)
-              ]
-                  : [
-                const Color(0x1AFFFFFF),
-                const Color(0x1AFFFFFF)
-              ],
-            )
-        ),
-        child: Text(message,
-            textAlign: TextAlign.start,
-            style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontFamily: 'OverpassRegular',
-            fontWeight: FontWeight.w300)),
-      ),
-    );
-  }
-}
 

@@ -21,10 +21,10 @@ class ProfileController extends ChangeNotifier {
     members.bindStream(getAllMembers());
   }
   // READ ONE USER
-  Future<UserModel?> readUser() async {
+  Future<UserModel?> readUser(String id) async {
     final docUser = FirebaseFirestore.instance
         .collection("users")
-        .doc(auth.currentUser!.uid);
+        .doc(id);
     final snapshot = await docUser.get();
     if (snapshot.exists) {
       return UserModel.fromJson(snapshot.data()!);
@@ -47,26 +47,12 @@ class ProfileController extends ChangeNotifier {
     return usersData;
   }
 
-  RxList<UserModel> allParticipants = RxList<UserModel>([]);
-
-  Stream<List<UserModel>> getAllParticipants({
-    required String collection,
-  }) {
-    allParticipants.bindStream(FirebaseFirestore.instance
-        .collection(collection)
-        .snapshots()
-        .map((query) =>
-            query.docs.map((item) => UserModel.fromMap(item)).toList()));
-    return FirebaseFirestore.instance.collection(collection).snapshots().map(
-        (query) => query.docs.map((item) => UserModel.fromMap(item)).toList());
-  }
-
   Future updateUsername({required String id, required String username}) async {
     try {
       usersCollection.doc(id).update({
         "username": username,
       }).whenComplete(() {
-        readUser();
+        readUser(auth.currentUser!.uid);
         Get.snackbar(
           "Modification réussie",
           "Votre nom d'utilisateur a bien été modifiée !",
@@ -84,23 +70,9 @@ class ProfileController extends ChangeNotifier {
       await usersCollection.doc(id).update({
         "email": email,
       }).whenComplete(() {
-        readUser();
+        readUser(auth.currentUser!.uid);
         Get.snackbar(
             "Modification réussie", "Votre email a bien été modifiée !",
-            snackPosition: SnackPosition.BOTTOM);
-      });
-    } on FirebaseAuthException catch (e) {
-      Utils.showSnackBar(e.message);
-    }
-  }
-
-  Future updateAge({required String id, required String age}) async {
-    try {
-      await usersCollection.doc(id).update({
-        "age": age,
-      }).whenComplete(() {
-        readUser();
-        Get.snackbar("Modification réussie", "Votre age a bien été modifiée !",
             snackPosition: SnackPosition.BOTTOM);
       });
     } on FirebaseAuthException catch (e) {
@@ -115,7 +87,7 @@ class ProfileController extends ChangeNotifier {
       await usersCollection.doc(id).update({
         "birthday": birthday,
       }).whenComplete(() {
-        readUser();
+        readUser(auth.currentUser!.uid);
         Get.snackbar("Modification réussie",
             "Votre date de naissance a bien été modifiée !",
             snackPosition: SnackPosition.BOTTOM);
@@ -126,6 +98,12 @@ class ProfileController extends ChangeNotifier {
   }
 
   Future userDeleteAccount({required String id}) async {
+    Reference referenceRoot = FirebaseStorage.instance.ref();
+    Reference referenceDirImages = referenceRoot.child('user_image');
+    //Create a reference for the image to be stored
+    Reference referenceImageToUpload = referenceDirImages.child('${auth.currentUser!.uid}.png');
+    // Create a reference to the file to delete
+    referenceImageToUpload.delete();
     await usersCollection.doc(id).delete().whenComplete(() {
       auth.currentUser!.delete();
       authController.emailController.clear();

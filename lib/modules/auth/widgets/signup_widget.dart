@@ -1,12 +1,20 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:newappfirebase/modules/auth/controllers/auth_controller.dart';
 import 'package:intl/intl.dart';
+import 'package:newappfirebase/modules/profile/controllers/image_picker_controller.dart';
+import 'package:newappfirebase/modules/profile/views/profile_view.dart';
+import 'package:newappfirebase/modules/profile/widgets/widgets_image_picker/user_image_picker.dart';
 
 class SignupWidget extends StatefulWidget {
   final Function() onClickedSignIn;
@@ -15,23 +23,22 @@ class SignupWidget extends StatefulWidget {
   @override
   State<SignupWidget> createState() => _SignupWidgetState();
 } 
-
+  FirebaseAuth auth = FirebaseAuth.instance;
   AuthController authController = AuthController();
-  // ImagePickerController imagePickerController = ImagePickerController();
+  ImagePickerController imagePickerController = ImagePickerController();
   bool _obscureText = true;
   IconData _iconVisible = Icons.visibility_off;
   
-  // File? userImageFile;
+  XFile? userImageFile;
   
 class _SignupWidgetState extends State<SignupWidget> {
  
-//  void _pickedImage(File image) {
-//     setState(() {
-//       userImageFile = image;
-//       authController.userImageFile = userImageFile;
-//       imagePickerController.imageSignUp = userImageFile;
-//     });
-//   }
+ void _pickedImage(File image) async {
+    setState(() {
+      userImageFile = XFile(image.path);
+      authController.file = XFile(image.path);
+    });
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -57,7 +64,7 @@ class _SignupWidgetState extends State<SignupWidget> {
                     ),
                     const SizedBox(height: 40,),
                   //*****PICKER IMAGE*****//
-                  // UserImagePicker(_pickedImage),  
+                  UserImagePicker(_pickedImage),  
                   //*****USERNAME*****//
                     TextFormField(
                       style: const TextStyle(color: Colors.white,),
@@ -76,24 +83,6 @@ class _SignupWidgetState extends State<SignupWidget> {
                       },
                     ),
                     const SizedBox(height: 4,),
-                  //*****AGE*****//
-                    TextFormField(
-                      style: const TextStyle(color: Colors.white, fontWeight: null),
-                      keyboardType: TextInputType.number,
-                      controller: authController.ageController,
-                      cursorColor: Colors.black87,
-                      textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelStyle: TextStyle(fontSize: 15),
-                        labelText: "Entrez votre age", focusColor: Colors.white),
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (age) { return
-                        age != null && age.length > 2
-                        ? "Trop vieux !"
-                        : null;
-                      },
-                    ),
-                    const SizedBox(height: 10,),
                   //*****BIRTHDAY*****//
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -172,9 +161,24 @@ class _SignupWidgetState extends State<SignupWidget> {
                   //*****BUTTON SIGNUP*****//
                     ElevatedButton.icon(
                       onPressed: (){
-                        // authController.selectedDate != null ?
-                        authController.signup(context);
-                        // :Utils.showSnackBar('Manque la date de naissance');
+                        if (userImageFile != null) {
+                          authController.signup(
+                            name: authController.userNameController.text,
+                            email: authController.emailController.text,
+                            birthday: authController.selectedDate!,
+                            password: authController.passwordController.text,
+                            url: userImageFile!.path,
+                          );
+                        } else {
+                          Get.snackbar(
+                            "Attention",
+                            "Veuillez prendre une photo !",
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.grey[500],
+                            duration: Duration(seconds: 3),
+                          );
+                          return;
+                        }
                       }, 
                       icon: const Icon(Icons.lock_open, size: 25.00), 
                       style: ElevatedButton.styleFrom(
